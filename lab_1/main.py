@@ -1,7 +1,11 @@
 # imports
-from tkinter import ttk, filedialog
+import os
+import subprocess
+import threading
+import time
+
 import tkinter as tk
-import threading, os, time, subprocess
+from tkinter import filedialog, ttk
 
 
 class Execution:
