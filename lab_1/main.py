@@ -156,6 +156,7 @@ class Execution:
             if os.path.isdir(it):
                 self.folders_list += it + "\n"
 
+
 # UI class
 class WindowUI:
     def __init__(self):
@@ -410,7 +411,7 @@ class WindowUI:
     def new_open_current_folder(self):
         subprocess.Popen(f'explorer "{os.getcwd()}"')
 
+
 if __name__ == '__main__':
     start_ui = WindowUI()
     start_ui.root.mainloop()
-
