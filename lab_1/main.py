@@ -15,13 +15,17 @@ class Execution:
         os.chdir(filedialog.askdirectory() + "/")
 
     def create_folders(self, input_string: str, time_sleep: int, num_iterations=0, start_pos=0):
-        """Create folders named after the names specified
+        """
+        Create folders named after the names specified.
 
         Args:
-            input_string (str): Folders names
-            time_sleep (int): Pause time between folder creation
-            num_iterations (int): Number of iterations; 0 means it's disabled and >0 create the amount of folders and increments the value of '{inc}' from <start_pos> to it. Defaults to 0.
-            start_pos (int, optional): pos to start from if iteration mode selected. Defaults to 0.
+            input_string (str): Folders names.
+            time_sleep (int): Pause time between folder creation.
+            num_iterations (int): Number of iterations; 0 means it's disabled
+                and >0 creates the amount of folders and increments the value of
+                '{inc}' from <start_pos> to it. Defaults to 0.
+            start_pos (int, optional): Position to start from if iteration mode
+                is selected. Defaults to 0.
         """
         self.functions_output = ""
         input_list = input_string.split("\n")
@@ -59,16 +63,22 @@ class Execution:
                 else:
                     self.functions_output = str(error) + "\n"
 
-    def remove_folders(self, input_string: str, mode_selected: int, starts_ends_with: str, num_iterations=0, start_pos=0):
-        """Remove folders named after the specified names
+    def remove_folders(self, input_string: str, mode_selected: int,
+                       starts_ends_with: str, num_iterations=0, start_pos=0):
+        """Remove folders named after the specified names.
 
         Args:
-            input_string (str): Folders names
-            mode_selected (int): 1 is 'starts with', 2 is 'ends with' and 0 is normal/iteration
-            starts_ends_with (str): Characters passed as params if mode_selected is 1 or 2
-            num_iterations (int, optional): 0 is no iteration and >0 loops replacing '{inc}' by the loop index. Defaults to 0.
-            start_pos (int, optional): Position to start from if iteration mode selected. Defaults to 0.
+            input_string (str): Folders names.
+            mode_selected (int): 1 is 'starts with', 2 is 'ends with', and
+                0 is normal/iteration.
+            starts_ends_with (str): Characters passed as params if
+                mode_selected is 1 or 2.
+            num_iterations (int, optional): 0 is no iteration and >0 loops
+                replacing '{inc}' by the loop index. Defaults to 0.
+            start_pos (int, optional): Position to start from if iteration
+                mode is selected. Defaults to 0.
         """
+
         self.functions_output = ""
         input_list = input_string.split("\n")
         if mode_selected == 0:
@@ -182,21 +192,39 @@ class WindowUI:
         text_box1 = tk.Text(self.tab1, width=40)
         text_box1.pack(expand=True, fill=tk.BOTH)
 
-        button_go1 = tk.Button(self.tab1, text="Go!",
-                                command=lambda: [self.new_create_folders(text_box1.get("1.0", 'end-1c'), v1.get())])
+        button_go1 = tk.Button(
+            self.tab1,
+            text="Go!",
+            command=lambda: [
+                self.new_create_folders(text_box1.get("1.0", 'end-1c'), v1.get())
+            ]
+        )
         button_go1.pack(side="bottom", pady=10)
 
         v1 = tk.DoubleVar()
 
         timeout_text = tk.Label(self.tab1, text="Time to pause between actions (in seconds)")
         timeout_text.pack()
-        timeout_slider = tk.Scale(self.tab1, variable=v1, from_=0, to=60, orient=tk.HORIZONTAL)
+
+        timeout_slider = tk.Scale(
+            self.tab1,
+            variable=v1,
+            from_=0,
+            to=60,
+            orient=tk.HORIZONTAL
+        )
         timeout_slider.pack(anchor=tk.CENTER, expand=True, fill=tk.BOTH)
 
         self.increment_variable = tk.IntVar()
 
-        increment_button1 = tk.Checkbutton(self.tab1, text="Increment mode", variable=self.increment_variable, onvalue=1,
-                                            offvalue=0, command=lambda: [self.increment_selector(self.tab1)])
+        increment_button1 = tk.Checkbutton(
+            self.tab1,
+            text="Increment mode",
+            variable=self.increment_variable,
+            onvalue=1,
+            offvalue=0,
+            command=lambda: [self.increment_selector(self.tab1)]
+        )
         increment_button1.pack(side="left", anchor="sw")
 
         # tab2 - remove folders
@@ -217,8 +245,14 @@ class WindowUI:
             self.new_remove_folders(test_box2.get("1.0", 'end-1c'), v4.get(), entry_box1.get())])
         button_go2.pack(side="bottom", pady=10)
 
-        increment_button2 = tk.Checkbutton(self.tab2, text="Increment mode", variable=self.increment_variable, onvalue=1,
-                                            offvalue=0, command=lambda: [self.increment_selector(self.tab2)])
+        increment_button2 = tk.Checkbutton(
+            self.tab2,
+            text="Increment mode",
+            variable=self.increment_variable,
+            onvalue=1,
+            offvalue=0,
+            command=lambda: [self.increment_selector(self.tab2)]
+        )
         increment_button2.pack(side="left", anchor="sw")
 
         # tab3 - modify folders
@@ -358,11 +392,15 @@ class WindowUI:
         self.logs.configure(state="disabled")
 
     def new_folders_list(self):
-        p = threading.Thread(target=self.execution.get_folder_list())
+        p = threading.Thread(target=self.execution.get_folder_list)
         p.start()
+
         self.logs.configure(state="normal")
-        self.logs.insert("1.0",
-                         f"---------------------------------\nCurrently working on:\n{os.getcwd()}.\nFolders list:\n{self.execution.folders_list}")
+        self.logs.insert(
+            "1.0",
+            f"---------------------------------\nCurrently working on:\n"
+            f"{os.getcwd()}.\nFolders list:\n{self.execution.folders_list}"
+        )
         self.logs.configure(state="disabled")
 
     def new_change_folder(self):
