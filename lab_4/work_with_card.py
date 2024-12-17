@@ -1,4 +1,3 @@
-import logging
 import multiprocessing
 import hashlib
 import time
@@ -7,12 +6,9 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from typing import List
 from work_with_file import *
+from logging_config import setup_logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
+setup_logging()
 
 
 def get_card_num(hash_str: str, last_nums: str, bin_str: str) -> List[str]:

@@ -1,14 +1,11 @@
 import argparse
-import logging
 
 from work_with_card import *
 from work_with_file import *
+from logging_config import setup_logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
+setup_logging()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
