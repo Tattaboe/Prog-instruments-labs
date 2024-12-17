@@ -1,11 +1,16 @@
 import argparse
+import logging
 
 from work_with_card import *
 from work_with_file import *
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser()
 
     group = parser.add_mutually_exclusive_group()
@@ -17,23 +22,29 @@ if __name__ == "__main__":
     parser.add_argument('-o_p', '--other_path', type=str, help='Change path to files')
 
     args = parser.parse_args()
+    logging.info(f"Parsed command-line arguments: {args}")
+
     paths = read_json(args.paths)
     c = read_json(paths["info"])
 
     match args:
         case args if args.other_path:
+            logging.info(f"Changing file paths: {args.other_path}")
             temp = args.other_path.split(",")
             if temp[0] in paths.keys():
                 paths[temp[0]] = temp[1]
 
         case args if args.get_card:
+            logging.info("Finding card numbers by hash")
             find_num(c["hash"], c["last_num"], c["bins"], paths["card_num"])
 
         case args if args.alg_luhn:
+            logging.info("Checking card number with Luhn algorithm")
             card_num_str = read_file(paths["card_num"])
             print(f"Card number is {algorithm_luhn(card_num_str)}")
 
         case args if args.graph:
+            logging.info("Generating graph of collision search time")
             data = get_stats(c["hash"], c["last_num"], c["bins"], paths["time"])
             data = list(map(float, data))
             graph(data, paths["graph"])

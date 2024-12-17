@@ -1,3 +1,4 @@
+import logging
 import multiprocessing
 import hashlib
 import time
@@ -6,6 +7,12 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 from typing import List
 from work_with_file import *
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 
 def get_card_num(hash_str: str, last_nums: str, bin_str: str) -> List[str]:
@@ -21,11 +28,14 @@ def get_card_num(hash_str: str, last_nums: str, bin_str: str) -> List[str]:
             List[str]: List of valid card numbers.
     """
 
+    logging.info(f"Generating valid card numbers for hash: {hash_str}, last 4 digits: {last_nums}, BIN: {bin_str}")
     valid_card_numbers = []
     for middle_num in range(0, 999999 + 1):
         card_num = f"{bin_str}{middle_num:06d}{last_nums}"
         if hashlib.sha3_256(card_num.encode()).hexdigest() == hash_str:
             valid_card_numbers.append(card_num)
+            logging.debug(f"Found valid card number: {card_num}")
+    logging.info(f"Found {len(valid_card_numbers)} valid card numbers")
     return valid_card_numbers
 
 
@@ -43,6 +53,7 @@ def find_num(hash_str: str, last_nums: str, bins: List[int], path_to: str) -> Li
         List[str]: List of valid card numbers found.
     """
 
+    logging.info(f"Finding valid card numbers for hash: {hash_str}, last 4 digits: {last_nums}, BINs: {bins}")
     ans = []
     args = [(hash_str, last_nums, str(bin_num)) for bin_num in bins]
 
@@ -50,8 +61,8 @@ def find_num(hash_str: str, last_nums: str, bins: List[int], path_to: str) -> Li
         for res in pool.starmap(get_card_num, args):
             ans += res
 
+    logging.info(f"Found {len(ans)} valid card numbers")
     write_file(path_to, "\n".join(ans))
-
     return ans
 
 
@@ -65,6 +76,7 @@ def algorithm_luhn(card_num: str) -> bool:
     Returns:
         bool: True if the credit card number is valid, False otherwise.
     """
+    logging.debug(f"Validating card number: {card_num}")
     total_sum = 0
     second_elem = False
 
@@ -79,7 +91,9 @@ def algorithm_luhn(card_num: str) -> bool:
         total_sum += elem
         second_elem = not second_elem
 
-    return total_sum % 10 == 0
+    is_valid = total_sum % 10 == 0
+    logging.info(f"Card number {card_num} is {'valid' if is_valid else 'invalid'}")
+    return is_valid
 
 
 def execute_processes(args, num_processes, start):
@@ -95,12 +109,14 @@ def execute_processes(args, num_processes, start):
         List[float]: List of times taken by each process.
     """
 
+    logging.info(f"Executing {num_processes} processes in parallel")
     process_times = []
     with multiprocessing.Pool(num_processes) as pool:
         results = pool.starmap(get_card_num, args)
         for result in results:
-            process_times.append(time.time() - start)
-
+            process_time = time.time() - start
+            process_times.append(process_time)
+            logging.debug(f"Process completed in {process_time:.2f} seconds")
     return process_times
 
 
@@ -118,6 +134,8 @@ def get_stats(hash: str, last_nums: str, bins: List[int], path_to: str) -> List[
         List[float]: List of average times for each process.
     """
 
+    logging.info(
+        f"Gathering statistics on collision search time for hash: {hash}, last 4 digits: {last_nums}, BINs: {bins}")
     times = []
 
     for i in tqdm(range(1, int(1.5 * multiprocessing.cpu_count()) + 1), desc='State'):
@@ -126,9 +144,9 @@ def get_stats(hash: str, last_nums: str, bins: List[int], path_to: str) -> List[
         process_times = execute_processes(args, i, start)
         avg_time = sum(process_times) / len(process_times)
         times.append(avg_time)
+        logging.info(f"Average time for {i} processes: {avg_time:.2f} seconds")
 
     write_file(path_to, "\n".join(map(str, times)))
-
     return times
 
 
@@ -143,6 +161,7 @@ def graph(data: List[float], path_to_save: str):
     Returns:
         None
     """
+    logging.info(f"Generating graph and saving to {path_to_save}")
     plt.plot(range(1, len(data) + 1), data)
 
     m = min(data)
@@ -155,4 +174,5 @@ def graph(data: List[float], path_to_save: str):
     plt.title('Search Time vs. Num of Processes')
 
     plt.savefig(path_to_save)
+    logging.info(f"Graph saved to {path_to_save}")
     plt.show()
